@@ -6,6 +6,6 @@ tqdm
 Telethon
 joblib
 asyncio
-Flask
+Flask[async]
 gunicorn
 nest_asyncio
