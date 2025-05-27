@@ -1,0 +1,11 @@
+datasets
+scikit-learn
+numpy
+pandas
+tqdm
+Telethon
+joblib
+asyncio
+Flask
+gunicorn
+nest_asyncio

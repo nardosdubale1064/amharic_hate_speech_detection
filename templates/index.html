@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amharic Hate Speech Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Amharic Social Media Hate Speech Analyzer</h1>
+        <p>Enter a Telegram URL (channel, group, or specific post) to analyze its content.</p>
+        <p><strong>Note:</strong> Facebook scraping is not supported for this project due to platform restrictions.</p>
+        
+        <form action="/analyze" method="post">
+            <label for="url">Telegram URL:</label>
+            <input type="text" id="url" name="url" placeholder="e.g., https://t.me/channel_username or https://t.me/channel_username/message_id" required>
+            <div class="info-text">
+                For channel/group analysis, provide the base URL (e.g., `https://t.me/EthioZena`).<br>
+                For specific post comment analysis, provide the post URL (e.g., `https://t.me/EthioZena/123`).
+            </div>
+
+            <label for="message_limit">Number of recent messages to analyze (for channel/group):</label>
+            <input type="text" id="message_limit" name="message_limit" value="1000" placeholder="e.g., 500, 1000, or 'all'">
+            <div class="info-text">
+                Default is 1000. Type 'all' for no limit (use with caution for very large channels).
+                This field is ignored for individual post URLs.
+            </div>
+            
+            <button type="submit">Analyze</button>
+        </form>
+
+        <div class="footer">
+            <p>© Your Name/Project Name. Built with Flask, Telethon, and scikit-learn.</p>
+        </div>
+    </div>
+</body>
+</html>
