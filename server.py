@@ -19,7 +19,7 @@ from telegram_scraper import (
     get_telegram_comments_for_message,
     get_channel_or_group_content,
     parse_telegram_url,
-    _run_telethon_client_task # <--- This wrapper function is key now
+    _run_telethon_client_task 
 )
 
 # --- Flask App Initialization ---
@@ -115,9 +115,6 @@ async def analyze():
     }
 
     try:
-        # Telethon client lifecycle is managed within the _run_telethon_client_task calls
-        # No explicit connect/disconnect here.
-
         if url_info['type'] == 'channel_or_group':
             message_limit = 1000 # Default
             if message_limit_str and message_limit_str.lower() != 'all':
@@ -177,7 +174,6 @@ async def analyze():
                     break
 
         elif url_info['type'] == 'message':
-            # Calls the wrapped function which handles client creation/connection/disconnection
             comments = await get_telegram_comments_for_message(url_info['identifier'], url_info['message_id']) 
 
             if not comments:
@@ -227,9 +223,6 @@ async def analyze():
 
 # --- Application Startup ---
 load_model_and_vectorizer()
-
-# No global Telethon client connection at startup needed anymore
-# Telethon client lifecycle is managed per request within _run_telethon_client_task
 
 if __name__ == '__main__':
     print("Starting Flask application...", file=sys.stderr)

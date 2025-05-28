@@ -3,98 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amharic Hate Speech Analyzer</title>
+    <title>Amharic Hate Speech Analyzer - HiLCoE NLP</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --accent-color: #28a745;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #343a40;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 960px;
+            margin: 0px auto;
+            background-color: var(--card-background);
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
-        h1 {
-            color: #333;
+
+        header {
             text-align: center;
-            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin: 0px;
+            text-align: center;
+        }
+
+        .form-section, .about-section, .credits-section, .accuracy-section {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fdfdfd;
+            box-shadow: var(--shadow);
+        }
+
         form {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
+
         label {
             font-weight: bold;
             margin-bottom: 5px;
             display: block;
+            color: var(--text-color);
         }
+
         input[type="text"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box; /* Include padding in width */
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
         }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
         .info-text {
             font-size: 0.9em;
-            color: #666;
+            color: var(--secondary-color);
             margin-top: -10px;
             margin-bottom: 10px;
         }
+        .info-text.warning {
+            color: #dc3545; /* Red for warnings */
+            font-weight: bold;
+        }
+
+
         button {
-            background-color: #007bff;
+            background-color: var(--primary-color);
             color: white;
-            padding: 12px 20px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 1.1em;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        button:hover {
+
+        button:hover:not(:disabled) {
             background-color: #0056b3;
         }
-        .footer {
-            margin-top: 40px;
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+        }
+
+        .spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .about-section h2, .credits-section h2, .accuracy-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        .about-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .about-section ul li {
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+        .about-section ul li::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .credits-section ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .credits-section ul li {
+            background-color: var(--border-color);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+        .credits-section ul li strong {
+            color: var(--primary-color);
+        }
+        .credits-section ul li a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .credits-section ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .accuracy-section p {
+            font-size: 1.05em;
             text-align: center;
-            font-size: 0.8em;
-            color: #999;
+        }
+        .accuracy-section .accuracy-value {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2em;
+        }
+
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 10px auto;
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 2em;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            button {
+                font-size: 1em;
+                padding: 10px 15px;
+            }
+            .credits-section ul {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Amharic Social Media Hate Speech Analyzer</h1>
-        <p>Enter a Telegram URL (channel, group, or specific post) to analyze its content.</p>
-        <p><strong>Note:</strong> Facebook scraping is not supported for this project due to platform restrictions.</p>
-        
-        <form action="/analyze" method="post">
-            <label for="url">Telegram URL:</label>
-            <input type="text" id="url" name="url" placeholder="e.g., https://t.me/channel_username or https://t.me/channel_username/message_id" required>
-            <div class="info-text">
-                For channel/group analysis, provide the base URL (e.g., `https://t.me/EthioZena`).<br>
-                For specific post comment analysis, provide the post URL (e.g., `https://t.me/EthioZena/123`).
-            </div>
+        <header>
+            <h1>Amharic Hate Speech Analyzer</h1>
+            <p>Uncover sentiment trends in Amharic Telegram content. Our tool classifies sentences from messages and comments into "hate speech," "offensive," or "normal" categories.</p>
+        </header>
 
-            <label for="message_limit">Number of recent messages to analyze (for channel/group):</label>
-            <input type="text" id="message_limit" name="message_limit" value="1000" placeholder="e.g., 500, 1000, or 'all'">
-            <div class="info-text">
-                Default is 1000. Type 'all' for no limit (use with caution for very large channels).
-                This field is ignored for individual post URLs.
-            </div>
-            
-            <button type="submit">Analyze</button>
-        </form>
+        <section class="form-section">
+            <h2 class="section-title">Analyze Telegram Content</h2>
+            <form action="/analyze" method="post" id="analysis-form">
+                <label for="url"><i class="fas fa-link"></i> Telegram URL:</label>
+                <input type="text" id="url" name="url" placeholder="e.g., https://t.me/channel_username or https://t.me/channel_username/message_id" required>
+                <div class="info-text">
+                    For channel/group analysis, provide the base URL (e.g., `https://t.me/tikvahethiopia`).<br>
+                    For specific post comment analysis, provide the post URL (e.g., `https://t.me/tikvahethiopia/123`).
+                </div>
 
-        <div class="footer">
-            <p>© Your Name/Project Name. Built with Flask, Telethon, and scikit-learn.</p>
-        </div>
+                <label for="message_limit"><i class="fas fa-sort-numeric-up"></i> Number of recent messages to analyze (for channel/group):</label>
+                <input type="text" id="message_limit" name="message_limit" value="50" placeholder="e.g., 50, 100, or 'all'">
+                <div class="info-text">
+                    Default is 50 messages. Type 'all' for no limit (use with caution).
+                </div>
+                <div class="info-text warning">
+                    <strong>Important for Free Hosting:</strong> Analyzing a large number of messages (e.g., >200 or 'all') may lead to timeouts or server errors due to memory/time limits.
+                </div>
+                
+                <button type="submit" id="submit-button">
+                    <i class="fas fa-paper-plane"></i> Analyze Content
+                    <div class="spinner" id="loading-spinner"></div>
+                </button>
+                <div id="loading-message" style="text-align: center; color: var(--primary-color); font-weight: bold; margin-top: 10px; display: none;">
+                    <p><i class="fas fa-hourglass-half"></i> Analysis in progress, please wait... This may take a while for large channels.</p>
+                </div>
+            </form>
+        </section>
+
+        <section class="accuracy-section">
+            <h2 class="section-title">Model Performance</h2>
+            <p>
+                Our underlying machine learning model has an approximate accuracy of 
+                <span class="accuracy-value">64%</span> on its test dataset. 
+                This indicates the model's overall effectiveness in classifying Amharic sentences into hate, offensive, or normal categories. 
+                Results shown reflect this inherent model performance.
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h2 class="section-title">About This Project</h2>
+            <p>This NLP application provides insights into the sentiment of Amharic text from Telegram. It's designed to identify sentences containing hate speech, offensive language, or normal discourse.</p>
+            <h3>Key Components & Technologies:</h3>
+            <ul>
+                <li><strong>Text Preprocessing (`amharic_preprocessing.py`):</strong> Cleans raw Amharic text by normalizing character variations, removing URLs, mentions, hashtags, emojis, and filtering stopwords. This prepares the text for analysis.
+                    <ul>
+                        <li> `normalize_amharic_chars(text)`: Handles various Amharic script variations to standardize characters.</li>
+                        <li> `preprocess_amharic_text(text)`: Applies comprehensive cleaning (URL/mention/emoji removal, character normalization, stopword filtering).</li>
+                        <li> `tokenize_amharic_sentences(text)`: Splits text into individual sentences based on Amharic and common punctuation.</li>
+                    </ul>
+                </li>
+                <li><strong>Machine Learning Model (<i class="fas fa-code"></i> `model_trainer.py`):</strong> A Logistic Regression classifier trained on TF-IDF (Term Frequency-Inverse Document Frequency) features. This model learns patterns from existing labeled data to categorize new Amharic sentences.
+                    <ul>
+                        <li> `train_and_save_model()`: Loads the dataset, preprocesses data, trains the TF-IDF vectorizer and Logistic Regression model, evaluates performance, and saves the trained components.</li>
+                    </ul>
+                </li>
+                <li><strong>Telegram Scraper (<i class="fas fa-code"></i> `telegram_scraper.py`):</strong> Securely interacts with the Telegram API to fetch messages and comments from specified channels and groups. It intelligently handles different Telegram entity types (channels with discussion groups, direct group chats) and ensures per-request client management.
+                    <ul>
+                        <li>`_run_telethon_client_task(task_coroutine)`: A crucial wrapper that creates, connects, runs a Telethon task, and disconnects the client for each request to ensure reliable `asyncio` loop management.</li>
+                        <li> `parse_telegram_url(url)`: Distinguishes between channel/group and message URLs.</li>
+                        <li>`_get_entity(identifier)`: Resolves a Telegram username/ID into a channel or group entity.</li>
+                        <li>`get_telegram_comments_for_message(identifier, message_id)`: Fetches comments for a specific post.</li>
+                        <li>`get_channel_or_group_content(identifier, message_limit)`: Scrapes recent messages and their comments from an entire channel or group.</li>
+                    </ul>
+                </li>
+                <li><strong>Web Application (<i class="fas fa-code"></i> `server.py`):</strong> Provides a user-friendly interface for inputting Telegram URLs and displaying the analysis results. Flask handles the web server logic.
+                    <ul>
+                        <li> `load_model_and_vectorizer()`: Loads the pre-trained NLP model components once on application startup.</li>
+                        <li>`classify_sentences(texts_to_analyze)`: Takes a list of texts, tokenizes them into sentences, preprocesses, and classifies each sentence using the loaded model.</li>
+                        <li>`/` (index route) & `/analyze` (analysis route): Handles web requests, calls scraping and classification functions, and renders HTML results.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section class="credits-section">
+            <h2 class="section-title">Project Credits & Acknowledgements</h2>
+            <ul>
+                <li><strong>Developed By:</strong> Gemechis, Nardos, and Nebyat</li>
+                <li><strong>Institution:</strong> HiLCoE School of Computer Science and Technology </li>
+                <li><strong>Course:</strong> Natural Language Processing (NLP) Group Assignment</li>
+                <li><strong>Training Data:</strong> Utilized the <a href="https://huggingface.co/datasets/uhhlt/amharichatespeechranlp" target="_blank">uhhlt/amharichatespeechranlp</a> dataset from Hugging Face for model training. This dataset is crucial for Amharic hate speech detection research.</li>
+                <li><strong>Key Tools & Libraries:</strong>
+                    <ul>
+                        <li><i class="fab fa-python"></i> Python</li>
+                        <li><i class="fas fa-brain"></i> Scikit-learn (Machine Learning)</li>
+                        <li><i class="fas fa-paper-plane"></i> Telethon (Telegram API)</li>
+                        <li><i class="fas fa-globe"></i> Flask (Web Framework)</li>
+                        <li><i class="fas fa-server"></i> Gunicorn (WSGI HTTP Server)</li>
+                        <li><i class="fas fa-infinity"></i> Asyncio & nest_asyncio (Asynchronous Programming)</li>
+                        <li><i class="fas fa-spinner"></i> tqdm & tqdm.asyncio (Progress Bars)</li>
+                        <li><i class="fas fa-code-branch"></i> Hugging Face Datasets & Hub</li>
+                        <li><i class="fas fa-database"></i> Pandas & NumPy (Data Manipulation)</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
     </div>
+
+    <footer>
+        <p>© 2025 Amharic Hate Speech Analyzer. All rights reserved.</p>
+    </footer>
+
+    <script>
+	 window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // If it's from cache, reset the form and loading state
+                const form = document.getElementById('analysis-form');
+                if (form) {
+                    form.reset(); 
+                }
+                const submitButton = document.getElementById('submit-button');
+                const loadingSpinner = document.getElementById('loading-spinner');
+                const loadingMessage = document.getElementById('loading-message');
+
+                if (submitButton) {
+                    submitButton.disabled = false; 
+                }
+                if (loadingSpinner) {
+                    loadingSpinner.classList.remove('active'); 
+                }
+                if (loadingMessage) {
+                    loadingMessage.style.display = 'none'; 
+                }
+            }
+        });
+
+        document.getElementById('analysis-form').addEventListener('submit', function() {
+            document.getElementById('submit-button').disabled = true;
+            document.getElementById('loading-spinner').classList.add('active');
+            document.getElementById('loading-message').style.display = 'block';
+        });
+    </script>
 </body>
 </html>

@@ -3,159 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis Results</title>
+    <title>Analysis Results - Amharic Hate Speech Analyzer</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --accent-color: #28a745;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #343a40;
+            --border-color: #e9ecef;
+            --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #fff;
+            max-width: 960px;
+            margin: 0px auto;
+            background-color: var(--card-background);
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
-        h1, h2 {
-            color: #333;
+
+        header {
             text-align: center;
-            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
+
+        header h1 {
+	    margin-top: 0px;
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
         }
+
         .summary-box {
-            border: 1px solid #ddd;
-            padding: 15px;
+            background-color: #e6f7ff; /* Light blue background */
+            border: 1px solid #cce5ff; /* Blue border */
+            padding: 20px;
             margin-bottom: 20px;
-            border-radius: 5px;
-            background-color: #e9ecef;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
         }
         .summary-box p {
-            margin: 5px 0;
+            margin: 8px 0;
+            font-size: 1.05em;
         }
+        .summary-box strong {
+            color: var(--primary-color);
+        }
+
         .sentiment-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures border-radius applies to corners */
         }
         .sentiment-table th, .sentiment-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid var(--border-color);
+            padding: 12px;
             text-align: left;
+            font-size: 1em;
         }
         .sentiment-table th {
-            background-color: #007bff;
+            background-color: var(--primary-color);
             color: white;
+            text-transform: uppercase;
+            font-weight: bold;
         }
+        .sentiment-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .sentiment-table tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .sentiment-table .sentiment-hate { color: #dc3545; font-weight: bold; } /* Red */
+        .sentiment-table .sentiment-offensive { color: #ffc107; font-weight: bold; } /* Yellow */
+        .sentiment-table .sentiment-normal { color: var(--accent-color); font-weight: bold; } /* Green */
+
         .samples-section h3 {
             margin-top: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-            color: #555;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.6em;
         }
         .sample-list {
             list-style-type: none;
             padding: 0;
         }
         .sample-list li {
-            background-color: #f8f9fa;
-            border: 1px solid #eee;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 0.95em;
+            word-wrap: break-word; /* Ensures long words wrap */
         }
+        .sample-list li span {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .sample-hate { color: #dc3545; }
+        .sample-offensive { color: #ffc107; }
+        .sample-normal { color: var(--accent-color); }
+
+
         .back-button {
-            display: block;
+            display: inline-block;
             width: fit-content;
             margin: 30px auto 0;
-            padding: 10px 20px;
-            background-color: #6c757d;
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
             text-align: center;
         }
         .back-button:hover {
             background-color: #5a6268;
         }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 10px auto;
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 2em;
+            }
+            .section-title {
+                font-size: 1.5em;
+            }
+            .summary-box {
+                padding: 15px;
+            }
+            .sentiment-table th, .sentiment-table td {
+                padding: 8px;
+                font-size: 0.9em;
+            }
+            .sample-list li {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Analysis Results</h1>
+        <header>
+            <h1>Analysis Results</h1>
+            <p>Detailed sentiment breakdown for the requested Telegram content.</p>
+        </header>
 
         {% if results.error %}
             <div class="error-message">
-                <strong>Error:</strong> {{ results.error }}
+                <i class="fas fa-exclamation-circle"></i> <strong>Error:</strong> {{ results.error }}
             </div>
-            <a href="/" class="back-button">Go Back</a>
+            <a href="/" class="back-button"><i class="fas fa-arrow-left"></i> Go Back</a>
         {% else %}
-            <div class="summary-box">
-                <p><strong>Analyzed URL:</strong> {{ results.url }}</p>
-                <p><strong>Analysis Type:</strong> {{ results.summary.type }}</p>
-                {% if results.summary.type == 'Channel/Group Analysis' %}
-                    <p><strong>Total Messages Scraped:</strong> {{ results.summary.total_messages_scraped }}</p>
-                    <p><strong>Messages with Comments:</strong> {{ results.summary.messages_with_comments }}</p>
-                    <p><strong>Total Comments Scraped:</strong> {{ results.summary.total_comments_scraped }}</p>
-                {% else %}
-                    <p><strong>Total Comments Retrieved:</strong> {{ results.summary.total_comments_retrieved }}</p>
-                {% endif %}
-                <p><strong>Total Sentences Classified:</strong> {{ results.summary.total_sentences_classified }}</p>
-            </div>
+           
 
-            <table class="sentiment-table">
-                <thead>
-                    <tr>
-                        <th>Sentiment Category</th>
-                        <th>Count</th>
-                        <th>Percentage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Hate</td>
-                        <td>{{ results.summary.hate.count }}</td>
-                        <td>{{ results.summary.hate.percentage }}</td>
-                    </tr>
-                    <tr>
-                        <td>Offensive</td>
-                        <td>{{ results.summary.offensive.count }}</td>
-                        <td>{{ results.summary.offensive.percentage }}</td>
-                    </tr>
-                    <tr>
-                        <td>Normal</td>
-                        <td>{{ results.summary.normal.count }}</td>
-                        <td>{{ results.summary.normal.percentage }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <section class="sentiment-breakdown-section">
+                <h2 class="section-title">Sentiment Breakdown by Sentence</h2>
+                <table class="sentiment-table">
+                    <thead>
+                        <tr>
+                            <th>Sentiment Category</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="sentiment-hate"><i class="fas fa-skull-crossbones"></i> Hate</td>
+                            <td>{{ results.summary.hate.count }}</td>
+                            <td>{{ results.summary.hate.percentage }}</td>
+                        </tr>
+                        <tr>
+                            <td class="sentiment-offensive"><i class="fas fa-exclamation-triangle"></i> Offensive</td>
+                            <td>{{ results.summary.offensive.count }}</td>
+                            <td>{{ results.summary.offensive.percentage }}</td>
+                        </tr>
+                        <tr>
+                            <td class="sentiment-normal"><i class="fas fa-check-circle"></i> Normal</td>
+                            <td>{{ results.summary.normal.count }}</td>
+                            <td>{{ results.summary.normal.percentage }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-            <div class="samples-section">
-                <h3>Sample Classified Sentences:</h3>
+ <section class="summary-section">
+                <h2 class="section-title">Analysis Summary</h2>
+                <div class="summary-box">
+                    <p><strong><i class="fas fa-link"></i> Analyzed URL:</strong> {{ results.url }}</p>
+                    <p><strong><i class="fas fa-chart-pie"></i> Analysis Type:</strong> {{ results.summary.type }}</p>
+                    {% if results.summary.type == 'Channel/Group Analysis' %}
+                        <p><strong><i class="fas fa-envelope"></i> Total Messages Scraped:</strong> {{ results.summary.total_messages_scraped }}</p>
+                        <p><strong><i class="fas fa-comments"></i> Messages with Comments:</strong> {{ results.summary.messages_with_comments }}</p>
+                        <p><strong><i class="fas fa-comment"></i> Total Comments Scraped:</strong> {{ results.summary.total_comments_scraped }}</p>
+                    {% else %}
+                        <p><strong><i class="fas fa-comment"></i> Total Comments Retrieved:</strong> {{ results.summary.total_comments_retrieved }}</p>
+                    {% endif %}
+                    <p><strong><i class="fas fa-paragraph"></i> Total Sentences Classified:</strong> {{ results.summary.total_sentences_classified }}</p>
+                </div>
+            </section>
+
+            <section class="samples-section">
+                <h2 class="section-title">Sample Classified Sentences</h2>
                 {% for category in ['hate', 'offensive', 'normal'] %}
                     {% if results.samples[category] %}
-                        <h4>{{ category.capitalize() }} Samples:</h4>
+                        <h3><span class="sample-{{ category }}">{{ category.capitalize() }} Samples:</span></h3>
                         <ul class="sample-list">
                             {% for sample in results.samples[category] %}
-                                <li>{{ sample }}</li>
+                                <li>
+                                    <span class="sample-{{ category }}">[{{ category.upper() }}]</span> {{ sample }}
+                                </li>
                             {% endfor %}
                         </ul>
                     {% endif %}
                 {% endfor %}
-            </div>
+            </section>
 
-            <a href="/" class="back-button">Analyze Another URL</a>
+            <a href="/" class="back-button"><i class="fas fa-arrow-left"></i> Analyze Another URL</a>
         {% endif %}
     </div>
+
+    <footer>
+        <p>© 2025 Amharic Hate Speech Analyzer. All rights reserved.</p>
+    </footer>
 </body>
 </html>
