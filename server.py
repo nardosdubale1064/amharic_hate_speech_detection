@@ -14,14 +14,12 @@ nest_asyncio.apply()
 
 from config import VECTORIZER_PATH, MODEL_PATH, LABEL_MAPPING
 from amharic_preprocessing import preprocess_amharic_text, tokenize_amharic_sentences
-# Import specific functions and the global client instance from telegram_scraper
+# Import the wrapped scraping functions and the main _run_telethon_client_task
 from telegram_scraper import (
     get_telegram_comments_for_message,
     get_channel_or_group_content,
     parse_telegram_url,
-    telethon_client,        # The global client instance
-    connect_telethon_client, # Function to connect it
-    disconnect_telethon_client # Function to disconnect it
+    _run_telethon_client_task # <--- This wrapper function is key now
 )
 
 # --- Flask App Initialization ---
@@ -117,7 +115,8 @@ async def analyze():
     }
 
     try:
-        await connect_telethon_client() 
+        # Telethon client lifecycle is managed within the _run_telethon_client_task calls
+        # No explicit connect/disconnect here.
 
         if url_info['type'] == 'channel_or_group':
             message_limit = 1000 # Default
@@ -131,8 +130,9 @@ async def analyze():
             elif message_limit_str and message_limit_str.lower() == 'all':
                 message_limit = None
 
+            # Calls the wrapped function which handles client creation/connection/disconnection
             channel_content_data, messages_with_comments_count, total_comments_scraped = \
-                await get_channel_or_group_content(url_info['identifier'], message_limit)
+                await get_channel_or_group_content(url_info['identifier'], message_limit) 
 
             if not channel_content_data:
                 analysis_results['error'] = f"No content retrieved from Telegram channel/group: {url}. This might mean the channel/group is private, inaccessible, or had no recent messages with text content."
@@ -177,7 +177,8 @@ async def analyze():
                     break
 
         elif url_info['type'] == 'message':
-            comments = await get_telegram_comments_for_message(url_info['identifier'], url_info['message_id'])
+            # Calls the wrapped function which handles client creation/connection/disconnection
+            comments = await get_telegram_comments_for_message(url_info['identifier'], url_info['message_id']) 
 
             if not comments:
                 analysis_results['error'] = f"No comments retrieved from Telegram Post: {url}. This might mean the post has no comments, or the channel/group is private/inaccessible."
@@ -227,36 +228,9 @@ async def analyze():
 # --- Application Startup ---
 load_model_and_vectorizer()
 
-# Determine if running via Gunicorn (production) or Flask's dev server (local)
-IS_GUNICORN = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "") or \
-              "gunicorn" in sys.argv[0] # Checks if gunicorn command is used
-
-# Connect Telethon client only once per process, regardless of environment
-if IS_GUNICORN:
-    # Gunicorn processes will run this block once per worker
-    print("Detected Gunicorn environment. Connecting Telethon client for worker...", file=sys.stderr)
-    try:
-        asyncio.run(connect_telethon_client())
-        print("Telethon client connected successfully for worker.", file=sys.stderr)
-    except Exception as e:
-        print(f"FATAL: Telethon client failed to connect on Gunicorn worker startup: {e}. Worker may not function correctly.", file=sys.stderr)
-        # In Gunicorn, a failed startup here might cause the worker to restart or fail.
-        # It's better to let it log and exit than proceed with a non-functional client.
-        sys.exit(1) # Exit worker if client connection fails here.
-else:
-    # For local Flask dev server (python server.py), we also connect once
-    print("Detected Flask development environment. Connecting Telethon client...", file=sys.stderr)
-    try:
-        asyncio.run(connect_telethon_client())
-        print("Telethon client connected successfully for dev server.", file=sys.stderr)
-    except Exception as e:
-        print(f"FATAL: Telethon client failed to connect on dev server startup: {e}. Application may not function correctly.", file=sys.stderr)
-        # sys.exit(1) # Don't exit dev server immediately, allow user to debug
+# No global Telethon client connection at startup needed anymore
+# Telethon client lifecycle is managed per request within _run_telethon_client_task
 
 if __name__ == '__main__':
     print("Starting Flask application...", file=sys.stderr)
-    # The debug flag should be False for production.
-    # For local testing, we've set IS_GUNICORN to differentiate.
-    # The Gunicorn startup command will ensure debug=False.
-    # For `python server.py`, we run with debug=False to avoid reloader issues.
     app.run(debug=False, host='0.0.0.0', port=os.environ.get('PORT', 5000))
